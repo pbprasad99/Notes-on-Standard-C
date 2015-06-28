@@ -1,0 +1,148 @@
+*STRUCTURE DECLARATIONS:
+-----------------------
+1)Syntax:
+struct <tag> {member list...} <variable_list>;
+
+Either tag or variable list can be omitted.
+
+1)Struct decalartion w/o tag (Anonymous struct):
+ struct { 
+         int a;
+         int b;
+
+
+        } a;
+
+2)Tag is not a type name. You cannot do this:
+struct foo {
+            int a;
+            int b;
+           };
+
+foo new_foo;
+
+
+You have to use "struct tag" which is called an elaborated type specifier:
+
+struct foo new_foo;
+
+3)This however is correct:
+
+typedef struct {
+
+        int a;
+        int b;
+       } foo;
+foo new_foo;
+
+because typedef creates a new type. 
+
+4) This is also correct:
+   typedef struct foo {
+                      int a;
+                      int b;
+
+                      } foo;
+  struct foo new_foo1;//using tag
+  foo new_foo2;//using type
+  
+Here, new_foo1 and new_foo2 are of the same type. One has been declared using a tag and the other using the type name. The tag and type name have the same identifier. This is possible because tags and all other identifiers are in separate namespaces.
+
+Another way of doing the same thing:
+   typedef struct foo foo;
+   struct foo {
+                int a;
+                int b;
+               };
+   struct foo new_foo1;
+   foo new_foo2;
+
+5)The other implications of this (of identifiers and tags belonging to different namespaces):
+
+    A ) Same identifier for type name and tag with different definitions ( possibly with same member list):
+     struct foo {
+                int a;
+                int b;
+                };
+    struct {
+            int a;
+            int b;
+           } foo;
+   struct foo new_foo1;
+   foo new_foo2;
+  
+   Here new_foo1 and new_foo2 are treated as belonging to distinct types.
+   
+   B)  Same name for object and tag: 
+          struct foo { 
+                   int a;
+                   int b;
+                   };
+       struct foo foo;
+      
+     Here, foo is object of type struct foo.
+
+*SELF REFRENTIAL STRUCTURE DECLARATIONS:
+---------------------------------------
+[N.B. : A structure cannot have as a member, a structure of the same type as itself. This is because it is somewhat absurd as it leads to 
+an infinite regress.
+  struct A { 
+            --------
+            struct A  b;
+           } a;
+ a is a struct of type struct A that contains a member b of type struct A which is a struct that contains a member b of type struct A which is a...
+ It could however  have as member a pointer to struct of its own type. The compiler already knows (before it is defined) how much space it needs for a pointer.]
+
+
+Not possible when you fold the structure definition into the typedef and omit the tag:
+
+     typedef struct {
+                  
+                  ----
+                  NODE *next; //error. node has not been declared yet.  
+                 }  NODE;
+Possible:
+      typedef struct node {
+                  
+                  ----
+                  struct node *next; // Used tag not type name  
+                 }  NODE;
+Possible:  
+     typedef struct node NODE;
+     struct node {
+                   ---
+                   NODE *next;  //Different tag and identifier.Used type name defined in typedef.
+                   };
+Possible:  
+     typedef struct node node;
+     struct node {
+                   ---
+                   node *next;  //Same tag and identifier. Used type name defined in typedef
+                   };
+
+*MUTUALLY DEPENDENT STRUCTURE DECLARATIONS:
+ ------------------------------------------
+  Two structures which refer to each other.
+ Forward declare one of them. At least one struct should be a pointer member (to the other) for this to be possible, ie the one which is not forward   declared.Again the compiler knows the size of a pointer to a struct but cannot know the size of a struct without its definition.
+ 
+*INDIRECT MEMBER ACCESS:
+ ----------------------
+ 
+ T *p; // Assume foo is a member of struct with type name T
+  
+ Dereferencing p takes you to the struct and . operation allows you to access the member.However,
+    *p.foo ; //Doesn't work because the . operator has higher perecedence than * . 
+               Interpeted as *(p.foo) --> Access foo in p and derefence. p is taken to be a struct object and foo to be a pointer.
+    
+    (*p).foo; // Parentheses override the default precedence. Deref p and the access foo
+    
+     p->foo; // Shorter way of doing the above. p must be pointer to strucure.
+     
+
+
+
+
+
+
+
+

@@ -1,0 +1,11 @@
+Subscript Initialization for arrays is allowed in C but not in C++.
+
+static uint8_t togglecode[256] =
+{
+	[0x3A] = CAPSLOCK,
+	[0x45] = NUMLOCK,
+	[0x46] = SCROLLLOCK
+};
+
+
+Initializes specified indices to given values. 

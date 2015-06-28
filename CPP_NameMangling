@@ -1,0 +1,81 @@
+C Name mangling:
+---------------
+Although C doesn't support function overloading, C does employ name mangling in certain situations. 
+
+The naming of static variable in function scope is not unique, such names have to be mangled to identify the scope inside the compilation unit. gcc does this by appending a dot and a unique number to the name.
+ 
+Also, C compilers might employ name mangling to support different calling conventions. 
+
+int _cdecl a(int x) {return 0}; // The function name is prefixed with _ ; a mangled to _a
+int _stdcall b(inty) {return 0}; // _name@x where x is the number of bytes in the parameter list; b mangled to_b@4
+int _fastcall c(int z) {return 0}; //@name@x where x is the numbere of bytes in the parameter list; c mangled to @c@4
+
+C++ Name mangling:
+-----------------
+C++ is an extension of C. C++ extends the C struct to a C++ class by providing object oriented features viz. encapsultion, inheritance, polymorphism. Name mangling is not defined by the C++ standard. However C++ compilers use their own name mangling schemes to implement things like function overloading, encapsulation (associating methods with classes), inheritance, namespaces.
+
+Functions:
+Since C++ allows overloading functions the compiler has to generate unique names based on the parameter list for the linker so that the linker can distinguish multiple functions with same names but different parameters.
+This is how g++ mangles function names.The function parameters are encoded into the mangled name (int -i, char -c, long -l, void - v, Pointer/Array - P, Reference - R,etc):
+void foo();                     // Mangled to _Z3foov
+void fooo(int a, char c);       // Mangled to _Z4foooic
+void foo(char * c, int[] a);    // Mangled to _Z3fooPcPi
+void foo(int a, MyClass b);     // Mangled to _Z3fooi7MyClass
+
+Note that a function with no parameters in C++ means that the function accepts no parameters (void foo() is mangled to _Z3foov --> v means void), unlike C which means you can push any number of arguments on the stack. The return type of functions is not mangled into the function name as C++ does not allow overloading by the return type.
+
+Similarly, for functions belonging to a class i.e. methods, the class name is encoded in the mangled name. The same is true for the namespace.
+
+class MyClass
+{
+ void foo(int a);     // Mangled to _ZN7MyClass3fooEi
+}
+
+
+namespace MyNS
+{
+ class MyClass
+ {
+  void foo(int a);     // Mangled to _ZN4MyNS7MyClass3fooEi
+ }
+}
+
+Mixing C and C++ code:
+--------------------------
+There is a provision in C++ to specify the linkage conventions of another language. When extern is used with a string literal, the string literal stands for the language linkage. For linking to object file compiled with C compiler,declare C functions/variables inside an extern "C" block. This will suppress C++ name mangling and use _cdecl for function calls.To allow C++ code to be called from C code, again specify C linkage with extern "C" in your C++ code.
+
+Writing a header file which can be used with both C an C++ :
+#ifdef __cpluscplus
+extern "C"
+{
+#endif
+
+/* Your declarations here */
+
+#ifdef __cplusplus
+}
+#endif
+
+
+Note that extern "C" specifies the language linkage conventions i.e. the name mangling scheme and function calling convention. For "C", this means that name mangling is suppresed and C calling convention is used. It is not the same as extern which specifies external linkage.
+
+A declaration directly contained in the extern "C" specification (as against an extern "C" block),
+eg. extern "C" int x; is treated as if it contained an extern linkage specifier
+
+extern "C" int x; 
+is the same as,
+extern "C"{extern int x};  // this is a declaration
+
+extern "C"
+{
+ int x ; // this is a declaration and a definition
+
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,61 @@
+* THE DANGLING ELSE AMBIGUITY:
+  ----------------------------
+The dangling else is an ambiguity in interpreting the statements of the form if-then-else where then is itself a condional.
+
+if(a) 
+
+if(b) x;
+
+else y;
+
+
+can be interpreted as 
+
+if(a) 
+ {
+   if(b) x;
+ }
+
+else y;
+
+
+
+or 
+
+
+if(a) 
+{
+ if(b) y;
+ else z;
+}
+
+
+Note that ambiguity is a property of the grammar and not the Language. This qualifies as an ambiguity for the compiler, because there are two correct parse trees (see separate note on compiler phases) for the same string and the compiler has to choose one.Thus it needs a mechanism which not itself a part of the grammar to solve this ambiguity. This is called a dismabiguation rule, which is that the else binds to the nearest if in the same block not already associated with an else. So the statements of the form if - then - else will be interpreted in different ways dependent on the context. 
+
+While the compiler solves this ambiguity, the programmer might find this kind of a construct ambiguous due to counter-intuitive indenting (indenting has no syntactic significance in C/C++, or any C derived language for that matter).
+
+if(a) 
+ 
+ if(b) y;
+
+else z;
+ 
+This kind of indenting suggests that the else binds to the outer if, which clearly is not the case.
+
+Indenting has no syntactic significance in C/C++, or any C derived language for that matter. On the other hand in a language like python in which indenting does have syntactic significance, the dangling else ambiguity is impossible. The Grammar in the case of C could be disambiguated if brackets were made mandatory. That is the other approach to solve ambiguity in a Grammar - by modifying the Grammar itself -
+as opposed to defining an extra-gramattical disambiguation rule.
+
+* LINKS:
+ -------
+Context free Grammars:
+https://www.youtube.com/watch?v=9XKUcm8au4U
+
+https://www.cs.rochester.edu/~nelson/courses/csc_173/grammars/cfg.html
+
+Ambiguous and Confusing Grammars:
+http://www.cs.man.ac.uk/~pjj/cs212/ho/node7.html
+
+http://www.inf.unibz.it/~artale/Compiler/slide5-PT-CFG.pdf
+
+Are C and C++ context free? :
+http://trevorjim.com/c-and-cplusplus-are-not-context-free/

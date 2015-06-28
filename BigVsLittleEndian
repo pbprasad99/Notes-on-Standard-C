@@ -1,0 +1,32 @@
+Big Endian and Little Endian: 
+----------------------------
+
+When you have byte addressable memory and multibyte data (type) you need a convention to adrress the multibyte data :
+1.) What should be the address of the multibyte data
+2.) IN what order are the individual bytes stored
+
+Both Little and Big ENdian take the lowest address to be the address of the multibyte data.
+ 
+The difference is in the order that individual bytes are stored.
+
+Little Endian stores the lttle end (LSB) at the end i.e. at the higher address.
+ For eg. 0x0A0B0C0D stored at 0x100 will look like this in memory:
+          
+          -------------------------
+          0D   | 0C  | 0B  |  0A  | 
+          -------------------------
+Starting->0x100 0x101 0x102 0x103
+Address
+
+
+Big Endian stores the Big End (MSB) at the end i.e. at the higher address.
+
+          -------------------------
+          0A   | 0B  | 0C  |  0D  | 
+          -------------------------
+Starting->0x100 0x101 0x102 0x103
+Address
+
+
+
+Big Endian looks the same as the mathematical form (from lower to higher addresses) whereas little Endian as if the byte order were reversed.

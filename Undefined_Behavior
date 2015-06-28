@@ -1,0 +1,41 @@
+*UNDEFINED BEHAVIOUR in C:
+-------------------------
+
+1. If a side effect on a scalar object is unsequenced relative to another side effect on the same scalar object.
+
+2. If a side effect is unsequenced relative to a value computaion using the value of the same scalar object.
+
+3. Signed Integer Overflow
+
+4. Dereferencing NULL pointer or result of malloc(0).
+   On Most modern machines( with an MPU/MMU) you would get somethinglike Bus error,Segmentation fault, protection violation but this       behavior is outside the standard.
+   malloc(0) is no differenet than malloc(10) and then derefrencing beyond the 10.
+
+5. Reading from uninitialized variables.
+
+6. Buffer overflow
+
+7. Comparing pointers from two different data structures
+
+8.Pointer Overflow
+
+9. Modifying a const object(C++) or a string literal.
+   - Compiler will complain if you modify a const object directly. But suppose you have a non const pointer to a const object you can modify it through the pointer. This is undefined behavior.
+
+10. Data Races
+
+11. Mismatch between new and delete
+
+12. Calling a library routine without fulfilling the prerequistes. 
+    - Eg. memcpy with overlapping buffers (memmove handles this)
+
+
+[
+
+A three part atricle on UB from a compiler engineer's perspective:
+
+http://blog.llvm.org/2011/05/what-every-c-programmer-should-know.html
+http://blog.llvm.org/2011/05/what-every-c-programmer-should-know_14.html
+http://blog.llvm.org/2011/05/what-every-c-programmer-should-know_21.html
+
+]

@@ -1,0 +1,70 @@
+[N.B. : This is a general description of compilers work. ]
+
+The input to a compiler is a string of characters.
+
+Characters -> tokens -> syntax trees -> code
+
+LEXICAL ANALYSIS (SCANNER) :
+--------------------------
+-The string of Characters is broken down into tokens. Also called lexemes or lexical item.
+{Tables including  Symbol table  (Differrent from symbol table written into object files and executables) might also be built in this phase. These are used later for semantic analysis. Tables could also be constructed in later phase. These are details of compiler construction.}
+
+SYNTACTIC ANALYSIS (PARSER):
+--------------------------
+
+Stream of lexemes translated to syntax trees or Atoms. 
+
+In a syntax tree each interior node represents an operation or control structure(if, while, for) and each leaf node represents and operands.
+Once a syntax tree has been generated code can generated (in a later phase) from by a post fix traversal of the tree. For each node N the algorithm visits all its sub trees and visits the node itself last at which point code corresponding to node N can be generated.
+
+Input-> A= B+C*D
+Output-> Syntax tree
+
+A = B+ c*D;
+    =
+   _|________  
+  |          |
+  A          +
+            _|________
+           |          |
+           B          *
+                     _|_
+                    |   |
+                    C   D
+           
+                      
+
+Input-> A = B + C * D;
+Output-> Atoms 
+        (MULT,C,D,TEMP1)
+         
+
+Eg. (ADD,A,B,T1)
+
+SEMANTIC ANALYSIS:
+-----------------
+Data types checked and type conversions are performed. Semantic errors might be detected like division by 0 or use of a null pointer.
+
+
+[GLOBAL OPTIMIZATION]:
+---------------------
+Self explanatory.
+
+CODE GENERATION:
+----------------
+Syntax tree/Atoms converted to machine code
+
+(ADD,A,B,T1)  -> LOD R1,A
+                ADD R1,B
+                STO R1,T1
+
+[LOCAL OPTIMIZATION]:
+--------------------
+Self explanatory
+
+
+
+References :
+C a reference manual
+Compiler Design - Bergman
+

@@ -1,0 +1,79 @@
+COMPLEX DECLARATIONS:
+--------------------
+Embedded programmers are familiar with the technique of accessing memory mapped hardware registers by casting a numerical address to a pointer type. 
+Similarly code at particular address location could be accessed usinga  cast to function pointers. 
+Say hardware calls a subroutine whose address is stored at 0 on reset.You want to call it without a reset. How would you do it?  
+
+                                                    ( )();  - function call through pointer
+                                                 (*( ))();  - function call through pointer to pointer
+                                               (*( ()0)();  - Pointer is locaterd at adrress 0. Need to cast it.  
+                                               (*((*)0)();  - 0 is a pointer
+                                             (*((*())0)();  - to a function
+                                        (*((void *())0)();  - which returns void
+
+Deciphering it: 
+                                        (*((void *())0)();  - ??
+                                                    ( )();  - looks like a function call through pointer
+                                                 (*( ))();  - function call through pointer to pointer
+                                               (*( ()0)();  - Pointer is located at address 0. Need to cast it.
+                                               (*((*)0)();  - 0 is a pointer  
+                                             (*((*())0)();  - to a function
+                                        (*((void *())0)();  - which returns void
+
+This is not a declaration.It is an expression. But a typdef name could be used to cast the address. The address (0) contains another address to a function. If you dererence zero you should get a function pointer. The cast is basically typdef without the identifier enclosed in parenthesis:
+            typedef void (*fptr)();
+            ------;
+            (*((fptr)0))();
+
+Say 0 wasn't  a pointer. The code was located at 0. How would you access it -> ((fptr)0)().
+
+Operator  Precedence   Associativity 
+(),[]     High         Left to right
+  *       Low          Right to left
+
+identifier -> is a
+()         -> function returns
+[]         -> array of
+*          -> pointer to  
+
+int *x();      ->same as int *(x()) ->because binds more tightly()->  x is a function which returns a pointer to int
+int (*x)();   ->x is a pointer to a function which returns an int
+int (x())[5]  ->x is a function which returns an array of 5 integers // Illegal . Function can't return array
+int (*x())[5] ->x is a function which returns a pointer to an array of 5 integers
+int *(x())[5] ->x is a function which returns an array of 5 pointers to integers //Illegal
+int (x[5])()  -> x is an array of 5 functions which return an int //Illegal
+int (*x[5])()  -> x is an array of 5 pointers to a function which returns int
+
+----------------------------------------------------------------------------------------
+cdecl is a utlity which translates english to C declarations and vice versa. Lets find some things you cant do with declarations.
+
+cdecl> declare signal as array of pointer to pointer to array of  function returning pointer to int
+Warning: Unsupported in C -- 'Array of function'
+	(maybe you mean "array of pointer to function")
+Warning: Unsupported in C -- 'Pointer to array of unspecified dimension'
+	(maybe you mean "pointer to object")
+int *(**signal[])[]()
+cdecl> declare fun as function returning array 10 of int
+Warning: Unsupported in C -- 'Function returning array'
+	(maybe you mean "function returning pointer")
+int fun()[10]
+cdecl> declare fun as function returning  function returning  int
+Warning: Unsupported in C -- 'Function returning function'
+	(maybe you mean "function returning pointer to function")
+int fun()()
+
+  
+----------------------------------------------------------------------------------
+This is from signal.h
+/* Type of a signal handler.  */
+typedef void (*__sighandler_t) (int);
+#ifdef __USE_BSD
+extern __sighandler_t signal (int __sig, __sighandler_t __handler)
+     __THROW;
+
+For more abuout signal handling see:
+http://www.gnu.org/software/libc/manual/html_node/Signal-Handling.html
+
+http://paul.rutgers.edu/~morbius/cs214/
+
+http://school.eecs.wsu.edu/undergraduate/cpts/courses/360

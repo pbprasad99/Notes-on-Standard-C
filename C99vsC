@@ -1,0 +1,28 @@
+C Standards:
+K&R C - Before standardisation. This is not a standard.  
+C89/ANSI C - ANSI standardises C. 
+C90/ ISO(9899:1990) - ANSI C accepted by ISO and published. Technically the same as ANSI C.  Later revisions are to this standard.
+C99 - Revision of C90
+C11 - Revision of C 99. Current standard
+
+
+
+C99 has:
+-------
+Variable length arrays.
+Flexi arrays (Flexible array members).
+Variadic macros.
+Digraphs.
+Inline functions.
+Support for one line comments // 
+New data types (bool,complex,long long int, optional extended integer types)
+inttypes.h, stdbool.h,complex.h,tgmath.h
+designated initializers
+compound literals
+type generic math (tgmath.h)
+
+Variable Declaration:
+In Standard C variable declaration restricted to file scope OR start of a compund statement(block)
+In C99 you can declare variables anywhere.
+
+And some more which i have mentioned here....

@@ -1,0 +1,96 @@
+IMPLICATION OF MAXIMAL MUNCH OR GREEDY LEXICAL ANALYSIS:
+--------------------------------------------------------
+a+++++b; //Doesn't work. Interpreted as (a++)++ + b, a++ is not an lvalue.
+a++ + ++b;//Works
+a+++ ++b;//Works
+a+++/*comment*/++b;//Works
+a++ +++b;// fails
+
+GREEDY LEXICAL ANALYSIS:
+-----------------------
+This behavior is due to the way lexical analysis* is done by the compiler. The lexer moves left to right and converts characters to tokens by collecting the largest number of characters which form a token. 
+
+A token can be seperated from another token with a space or comment.
+An identifier, keyword , constant (int or floating type) must always be separated from a following identifier, keyword , constant.  
+
+Classes of tokens: keyword, identifiers, operators, seperators, constants, digraphs(C99)
+Seperators are (  )  { } [ ] , ; ...
+Dot is not a seperator. Its an operator.
+Compound operators like >= are tokens.
+Note that ... or ellipsis is a classified as a seperator. Used in variadic functions(C89-stddef.h) and variadic macros(C99) 
+Digraphs were introduced in C99 and are handled during tokenization unlike trigraphs which are handled by the preprocessor.
+
+
+APPENDIX:
+--------
+
+Compiler Phases:
+---------------
+The input to a compiler is a string of characters.
+
+Characters -> tokens -> syntax trees -> code
+
+Lexical analysis (scanner):
+--------------------------
+-The string of Characters is broken down into tokens. Also called lexemes or lexical item.
+{Tables including  Symbol table  (Differrent from symbol table written into object files and executables) might also be built in this phase. These are used later for semantic analysis. Tables could also be constructed in later phase. These are details of compiler construction.}
+
+Syntactic analysis(parser):
+--------------------------
+
+Stream of lexemes translated to syntax trees or Atoms. 
+
+In a syntax tree each interior node represents an operation or control structure(if, while, for) and each leaf node represents and operands.
+Once a syntax tree has been generated code can generated (in a later phase) from by a post fix traversal of the tree. For each node N the algorithm visits all its sub trees and visits the node itself last at which point code corresponding to node N can be generated.
+
+Input-> A= B+C*D
+Output-> Syntax tree
+
+A = B+ c*D;
+    =
+   _|________  
+  |          |
+  A          +
+            _|________
+           |          |
+           B          *
+                     _|_
+                    |   |
+                    C   D
+           
+                      
+
+Input-> A = B + C * D;
+Output-> Atoms 
+        (MULT,C,D,TEMP1)
+         
+
+Eg. (ADD,A,B,T1)
+
+Semantic Analysis:
+-----------------
+Data types checked and type conversions are performed. Semantic errors might be detected like division by 0 or use of a null pointer.
+
+
+[Global Optimization]:
+---------------------
+Self explanatory.
+
+Code Generation:
+----------------
+Syntax tree/Atoms converted to machine code
+
+(ADD,A,B,T1)  -> LOD R1,A
+                ADD R1,B
+                STO R1,T1
+
+[Local Optimization]:
+--------------------
+Self explanatory
+
+
+
+References :
+C a reference manual
+Compiler Design - Bergman
+

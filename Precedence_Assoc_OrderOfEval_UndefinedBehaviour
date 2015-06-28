@@ -1,0 +1,94 @@
+*PRECEDENCE, ASSOCIATIVITY, ORDER OF EVALUATION AND TEMPORALITY:
+---------------------------------------------------------------
+
+In order to understand Undefined Behavior due to unsequenced side effects, it is worthwhile to clear up confusion, if any,
+in the relationship between Operator Precedence, Associativity and Order of Evaluation. The confusion arises in part due to 
+the fact that in many places, while explaining the concepts of Precedence and Associativity, temporal adverbs like 'first', 'before'
+and 'after' are used. 
+
+For eg. Consider this MSDN article 
+
+https://msdn.microsoft.com/en-us/library/2bxt6kc4.aspx
+
+which says:
+
+The precedence and associativity of C operators affect the grouping and evaluation of operands in expressions. An operator's precedence is meaningful only if other operators with higher or lower precedence are present. Expressions with higher-precedence operators are evaluated *first*.
+
+In truth however order of evaluation is independent of precedence and associativity. Precedence and associativity
+decide how the expression is broken down into sub expressions. But barring explicitly defined sequence points in expressions (like &&,||, comma operator,?:), the order of evaluation of sub expressions is unsequenced. 
+
+a+b+c*d+e*f is interpreted as ( (a + b) + (c*d) ) + (e*f), due to higher precedence of * left to right associativity of the + operator. But it is not necessary that (c*d) is evaluated before (a+b).In fact, (a+b), (c*d) and (a*b) might be evaluted in any order.
+
+Precedence and associativity have to do with meaning rather than order. Consider that a = b = c is interpreted as a = ( b = c) due to right to left associativity of the assignment operator. Had it been left associative,we would have (a=b)=c which would change its meaning entirely. 
+
+*p.a is evaluated as *(p.a) due to higher precedence of  dot  operator.
+p is interpreted as a structure, 'a' as a structure member which is a pointer.Therefore, you need to use parantheses to override the default
+precedence and correctly access a structure member through a pointer to a struct using the . operator : (*p).a
+
+Therefore precedence and associativity together have a purely semantic significance and are independent of the order of evaluation of operands of operators. The semantics might impose a specific order of evaluation, but in cases where a sub expression has a value as well 
+as a side effect, the side effect and evaluation might be sequenced in any order, eg.  postfix/prefix increment and decrement.   
+
+*SEQUENCE POINTS:
+---------------
+A sequence point guarantees that all side effects between current sequence point and previous sequence point have been completed.
+
+Take ++i. It involves a value computation and a side effect, which is to increment the stored variable i. Just because the value computation is also the incremented value of i does not guarantee that i will be incremented BEFORE ++i is evaluated. The only guarantee is that i++ will be evaluated before the next sequence point. A compiler might generate code which reads i increments it returns the value, evaluates other 
+sub expression/s and writes back the incremented value at some later point.
+
+
+Sequence points in C/C++ (from wikipedia);
+    1.Between evaluation of the left and right operands of the && (logical AND), || (logical OR) (as part of short-circuit evaluation), and comma operators. For example, in the expression *p++ != 0 && *q++ != 0, all side effects of the sub-expression *p++ != 0 are completed before any attempt to access q.
+    2.Between the evaluation of the first operand of the ternary "question-mark" operator and the second or third operand. For example, in the expression a = (*p++) ? (*p++) : 0 there is a sequence point after the first *p++, meaning it has already been incremented by the time the second instance is executed.
+    3.At the end of a full expression. This category includes expression statements (such as the assignment a=b;), return statements, the controlling expressions of if, switch, while, or do-while statements, and all three expressions in a for statement.
+    4.Before a function is entered in a function call. The order in which the arguments are evaluated is not specified, but this sequence point means that all of their side effects are complete before the function is entered. In the expression f(i++) + g(j++) + h(k++), f is called with a parameter of the original value of i, but i is incremented before entering the body of f. Similarly, j and k are updated before entering g and h respectively. However, it is not specified in which order f(), g(), h() are executed, nor in which order i, j, k are incremented. Variables j and k in the body of f may or may not have been already incremented. Note that a function call f(a,b,c) is not a use of the comma operator and the order of evaluation for a, b, and c is unspecified.
+    5.At a function return, after the return value is copied into the calling context. (This sequence point is only specified in the C++ standard; it is present only implicitly in C.[6])
+    6.At the end of an initializer; for example, after the evaluation of 5 in the declaration int a = 5;.
+    7.Between each declarator in each declarator sequence; for example, between the two evaluations of a++ in int x = a++, y = a++.[7] Note that this is not an example of the comma operator.
+
+
+*UNDEFINED BEHAVIOR DUE TO UNSEQUENCED SIDE EFFECTS;
+---------------------------------------------------
+1)If a side effect on a scalar object is unsequenced relative to another side effect on the same scalar object.
+
+j = i++ + ++i;
+i = i++ + ++i;
+f(++i,i++);
+f(i=-1,i=-1);
+i = i++; // Two unsequenced side effects
+/*
+Analysis of i = i++ :
+
+i can incremented before or after assignment
+
+Value of i remains same if i is incremented before assignment:       
+i = i+1;
+i = i; // result of value comutaion of i (which is i) assigned to i 
+
+i incremented if assignment happens before increment.
+i = i;
+i = i +1;
+*/
+  
+
+2) 
+If a side effect is unsequenced relative to a value computation using the value of the same scalar object.
+j = i++ + i; // Side effect of i++ unsequenced wrt value computation of i
+a[i] = i++; // side effect of i++ is unsequenced wrt computation of lvalue *(a +i) 
+
+3) The above rules apply as long as at least one allowable ordering of sub expressions permits such an unsequenced side effect.
+
+ 
+*SUMMARY:
+-------
+The order of evaluation between sequence points in unspecified. So, do not depend on it.
+
+
+
+
+
+
+
+
+
+
+
